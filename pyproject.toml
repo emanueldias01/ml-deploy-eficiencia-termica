@@ -1,0 +1,10 @@
+[project]
+name = "ml-deploy-eficiencia-termica"
+version = "0.1.0"
+description = "Projeto de machine learning para predição de eficiência de tubos de trocas de calor"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pandas>=3.0.6",
+    "sqlalchemy>=2.1.5",
+]
