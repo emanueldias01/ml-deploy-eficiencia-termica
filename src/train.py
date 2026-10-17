@@ -5,7 +5,8 @@ from sqlalchemy import create_engine
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 import joblib
-import numpy as np
+from dotenv import load_dotenv
+import os
 
 
 logger = get_logger(__name__)
@@ -60,8 +61,10 @@ def save_model(model: LinearRegression, path: str) -> None:
 
 
 if __name__ == "__main__":
-    dataset_path = "data/heat_exchanger.db"
-    model_path = "artifacts/linear_regression_model.pkl"
+    load_dotenv()
+
+    dataset_path = os.getenv("DB_PATH")
+    model_path = os.getenv("MODEL_PATH")
 
     df = read_dataset(dataset_path)
     X = df[["day_index"]]
