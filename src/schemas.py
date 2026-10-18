@@ -1,9 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class DayIndexPayload(BaseModel):
-    day: int
+    day: int = Field(..., ge=1)
 
 
 class EfficiencyPayload(BaseModel):
-    efficiency: float
+    efficiency: float = Field(..., ge=0, le=100)
+
+class Model(BaseModel):
+    name: str

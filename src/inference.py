@@ -5,6 +5,7 @@ import argparse
 from pathlib import Path
 import os
 from functools import lru_cache
+from schemas import Model
 
 logger = get_logger(__name__)
 
@@ -52,6 +53,15 @@ def get_latest_model() -> Path:
     logger.info(f"Latest model found: {latest_model}")
 
     return latest_model
+
+def get_models() -> list[Model]:
+    models = os.listdir("artifacts")
+    list_models = []
+    if models:
+        for model in models:
+            list_models.append(Model(name=model))
+
+    return list_models
 
 
 if __name__ == "__main__":
