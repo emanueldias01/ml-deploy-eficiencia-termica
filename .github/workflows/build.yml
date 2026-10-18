@@ -1,31 +1,66 @@
-
-name: Build docker image
+name: Build and Validate Docker Images
 
 on:
-    push:
-        branches:
-            - main
-    
+  push:
+    branches:
+      - main
+
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
 
-        steps:
-          - name: code checkout
-            uses: actions/checkout@v6
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
 
+      - name: Build train image
+        run: docker build -f Dockerfile.train -t ml-train:latest .
 
-          - name: build train image
-            run: docker build -f Dockerfile.train -t ml-train .
+      - name: Build inference image
+        run: docker build -f Dockerfile.inference -t ml-inference:latest .
 
-          - name: build inference image
-            run: docker build -f Dockerfile.inference -t ml-inference .
+      - name: Save Docker images
+        run: docker save ml-train:latest ml-inference:latest -o docker-images.tar
 
-          - name: train model
-            run: docker run -v $(pwd)/artifacts:/app/artifacts ml-train
+      - name: Upload Docker images
+        uses: actions/upload-artifact@v6
+        with:
+          name: docker-images
+          path: docker-images.tar
+          retention-days: 1
 
-          - name: verify if has .pkl model
-            run: ls artifacts/linear_regression_model-*.pkl
+  validation:
+    name: Validate Training and Inference
+    runs-on: ubuntu-latest
+    needs: build
 
-          - name: inference validation
-            run: docker run -v ${{ github.workspace }}/artifacts:/app/artifacts ml-inference python src/inference.py --heat-efficiency 300
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download Docker images
+        uses: actions/download-artifact@v6
+        with:
+          name: docker-images
+
+      - name: Load Docker images
+        run: docker load -i docker-images.tar
+
+      - name: Train model
+        run: |
+          mkdir -p artifacts
+          docker run --rm \
+            -v "${{ github.workspace }}/artifacts:/app/artifacts" \
+            ml-train:latest
+
+      - name: Validate model artifact
+        run: |
+          test -n "$(find artifacts -maxdepth 1 -type f -name 'linear_regression_model-*.pkl' -print -quit)"
+
+      - name: Validate inference
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/artifacts:/app/artifacts" \
+            ml-inference:latest \
+            python src/inference.py --heat-efficiency 300
