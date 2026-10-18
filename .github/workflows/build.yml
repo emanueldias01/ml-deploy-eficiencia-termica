@@ -28,4 +28,4 @@ jobs:
             run: ls artifacts/linear_regression_model-*.pkl
 
           - name: inference validation
-            run: docker run -v ${{ github.workspace }}/artifacts:/app/artifacts ml-inference python src/inference.py --efficiency 300
+            run: docker run -v ${{ github.workspace }}/artifacts:/app/artifacts ml-inference python src/inference.py --heat-efficiency 300
