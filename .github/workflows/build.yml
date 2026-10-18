@@ -1,0 +1,31 @@
+
+name: Build docker image
+
+on:
+    push:
+        branches:
+            - main
+    
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: code checkout
+            uses: actions/checkout@v6
+
+
+          - name: build train image
+            run: docker build -f Dockerfile.train -t ml-train .
+
+          - name: build inference image
+            run: docker build -f Dockerfile.inference -t ml-inference .
+
+          - name: train model
+            run: docker run -v $(pwd)/artifacts:/app/artifacts ml-train
+
+          - name: verify if has .pkl model
+            run: ls artifacts/linear_regression_model-*.pkl
+
+          - name: inference validation
+            run: docker run -v ${{ github.workspace }}/artifacts:/app/artifacts ml-inference python src/inference.py --efficiency 300
