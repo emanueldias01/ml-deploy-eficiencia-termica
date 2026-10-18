@@ -1,9 +1,10 @@
 import joblib
-from utils.logger import get_logger
+from src.utils.logger import get_logger
 import pandas as pd
 import argparse
 from pathlib import Path
 import os
+from functools import lru_cache
 
 logger = get_logger(__name__)
 
@@ -13,20 +14,29 @@ def load_model(path: str) -> joblib:
     return joblib.load(path)
 
 
-def predict_eff(model, day_index: int):
+@lru_cache(maxsize=1)
+def get_model():
+    path = get_latest_model()
+    return load_model(path)
+
+
+def predict_eff(model, day_index: int) -> float:
     logger.info(f"Predicting heat efficiency for day index: {day_index}")
     df = pd.DataFrame({"day_index": [day_index]})
     predict = model.predict(df)[0]
     logger.info(f"Predicted heat efficiency: {predict}")
+    return predict
 
 
-def predict_data(model, y):
+def predict_data(model, y) -> int:
     logger.info(f"Predicting heat efficiency for dataset")
     coef = model.coef_
     intercept = model.intercept_
     logger.info(f"Model coefficients: {coef}, intercept: {intercept}")
     day = (y - intercept) / coef
-    logger.info(f"Predicted day index for heat efficiency {y}: {day[0]}")
+    day = round(float(day[0]))
+    logger.info(f"Predicted day index for heat efficiency {y}: {day}")
+    return day
 
 
 def get_latest_model() -> Path:

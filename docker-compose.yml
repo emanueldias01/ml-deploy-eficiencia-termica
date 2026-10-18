@@ -9,19 +9,27 @@ services:
     environment:
       DB_PATH: /app/data/heat_exchanger.db
       MODEL_PATH: /app/artifacts/linear_regression_model-
-
-  inference:
+  
+  api:
     build:
       context: .
-      dockerfile: Dockerfile.inference
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
     volumes:
       - model-artifacts:/app/artifacts:ro
+    environment:
+      MODEL_PATH: /app/artifacts/linear_regression_model-
     depends_on:
       train:
         condition: service_completed_successfully
+    networks:
+      - ml-heat-efficiency
+
 
 volumes:
   model-artifacts:
 
-
-# after run docker compose up -d, running docker-compose run --rm inference python src/inference.py --day-index=<day_index> --heat-efficiency=<percentage_efficiency>
+networks:
+  ml-heat-efficiency:
+    driver: bridge
