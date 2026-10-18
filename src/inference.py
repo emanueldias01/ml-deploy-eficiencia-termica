@@ -2,6 +2,7 @@ import joblib
 from utils.logger import get_logger
 import pandas as pd
 import argparse
+from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -27,14 +28,33 @@ def predict_data(model, y):
     logger.info(f"Predicted day index for heat efficiency {y}: {day[0]}")
 
 
+def get_latest_model() -> Path:
+    artifacts_dir = Path("artifacts")
+
+    models = list(artifacts_dir.glob("linear_regression_model-*.pkl"))
+
+    if not models:
+        raise FileNotFoundError("No trained models found in artifacts/")
+
+    latest_model = max(models, key=lambda path: path.name)
+
+    logger.info(f"Latest model found: {latest_model}")
+
+    return latest_model
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model-path", default="artifacts/linear_regression_model.pkl")
+    parser.add_argument("--model-path")
     parser.add_argument("--day-index", type=int)
     parser.add_argument("--heat-efficiency", type=float)
     args = parser.parse_args()
 
-    model = load_model(args.model_path)
+    if args.model_path is None:
+        path = get_latest_model()
+        model = load_model(path)
+    else:
+        model = load_model(args.model_path)
 
     if args.day_index is not None:
         predict_eff(model, day_index=args.day_index)
