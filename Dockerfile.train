@@ -29,7 +29,7 @@ RUN mkdir -p artifacts
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV DB_PATH="data/heat_exchanger.db"
-ENV MODEL_PATH="artifacts/linear_regression_model.pkl"
+ENV MODEL_PATH="artifacts/linear_regression_model-"
 
 CMD ["python" , "src/train.py"]
 
