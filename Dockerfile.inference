@@ -23,7 +23,6 @@ WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/src /app/src
-COPY data /app/data
 
 RUN mkdir -p artifacts
 
@@ -31,6 +30,6 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENV DB_PATH="data/heat_exchanger.db"
 ENV MODEL_PATH="artifacts/linear_regression_model.pkl"
 
-CMD ["python" , "src/train.py"]
+CMD ["python" , "src/inference.py"]
 
-## if you have run inference, run docker run <image-name:tag> sh -c "python src/train.py && python src/inference.py --day-index=<number of days> --heat-efficiency=<percentage of efficiency>"
+# for running save model in local storage, run docker run -v $(pwd)/artifacts:/app/artifacts image-name python src/inference.py --day-index=<day_index> --heat-efficiency=<percentage_efficiency>
