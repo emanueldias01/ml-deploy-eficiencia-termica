@@ -3,6 +3,7 @@ from utils.logger import get_logger
 import pandas as pd
 import argparse
 from pathlib import Path
+import os
 
 logger = get_logger(__name__)
 
@@ -48,7 +49,20 @@ if __name__ == "__main__":
     parser.add_argument("--model-path")
     parser.add_argument("--day-index", type=int)
     parser.add_argument("--heat-efficiency", type=float)
+    parser.add_argument("--list-models", action="store_true")
     args = parser.parse_args()
+
+    if args.list_models is not None:
+        models = os.listdir("artifacts")
+
+        if models:
+            print("Available models:")
+            for model in models:
+                print(model)
+        else:
+            print("No models found in artifacts/")
+
+        pass
 
     if args.model_path is None:
         path = get_latest_model()
