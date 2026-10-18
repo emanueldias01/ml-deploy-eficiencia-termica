@@ -1,5 +1,5 @@
 import joblib
-from src.utils.logger import get_logger
+from utils.logger import get_logger
 import pandas as pd
 import argparse
 from pathlib import Path

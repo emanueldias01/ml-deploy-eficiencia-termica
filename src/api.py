@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from src.schemas import EfficiencyPayload, DayIndexPayload
-from src.inference import predict_data, predict_eff, get_model
+from schemas import EfficiencyPayload, DayIndexPayload
+from inference import predict_data, predict_eff, get_model
 
 app = FastAPI(title="Predict Heat Efficiency API")
 
